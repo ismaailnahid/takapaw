@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart Copy Tool with App Sharing</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Rubik&display=swap');
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Rubik', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+    }
+
+    .card {
+      background-color: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 25px 30px;
+      max-width: 900px;
+      width: 100%;
+      box-sizing: border-box;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      z-index: 1;
+    }
+
+    .card h2 {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin: 25px 0 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      padding-bottom: 5px;
+    }
+
+    .links-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+    }
+
+    .link-item {
+      background-color: rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      min-width: 180px;
+      max-width: 220px;
+      flex: 1 1 180px;
+      transition: background-color 0.3s;
+    }
+
+    .link-item:hover {
+      background-color: rgba(255, 255, 255, 0.25);
+    }
+
+    .link-item a {
+      color: #fff;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-grow: 1;
+      display: flex;
+      align-items: center;
+    }
+
+    .link-item a img {
+      margin-right: 8px;
+      vertical-align: middle;
+      flex-shrink: 0;
+    }
+
+    button.copy-btn {
+      background-color: #5a3e9e;
+      border: none;
+      color: #fff;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: background-color 0.3s;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    button.copy-btn:hover {
+      background-color: #382466;
+    }
+
+    /* Overlay and Toast styles */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.35);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .overlay.show {
+      display: flex;
+    }
+
+    .toast {
+      background: linear-gradient(145deg, #5a3e9e, #764ba2);
+      color: #fff;
+      padding: 20px 50px;
+      border-radius: 25px;
+      font-size: 20px;
+      font-weight: 700;
+      box-shadow:
+        0 4px 15px rgba(90, 62, 158, 0.8),
+        0 10px 40px rgba(118, 75, 162, 0.7);
+      transform-style: preserve-3d;
+      perspective: 1000px;
+      transform: translateZ(0) rotateX(90deg) scale(0.7);
+      opacity: 0;
+      transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      transform-origin: center bottom;
+      text-align: center;
+      user-select: none;
+    }
+
+    .toast.show {
+      transform: translateZ(0) rotateX(0deg) scale(1);
+      opacity: 1;
+    }
+
+    @media (max-width: 600px) {
+      .link-item {
+        min-width: 100%;
+        max-width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+
+
+
+
+    /* পূর্বের কোড ঠিক রেখে নিচের মিডিয়া কুয়েরি যোগ করলেই হবে */
+
+@media (max-width: 900px) {
+  .card {
+    max-width: 95vw;
+    padding: 20px 20px;
+  }
+
+  .links-container {
+    justify-content: flex-start;
+    gap: 12px;
+  }
+
+  .link-item {
+    min-width: 140px;
+    max-width: 100%;
+    flex: 1 1 calc(50% - 12px);
+    padding: 10px 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .link-item {
+    min-width: 100%;
+    max-width: 100%;
+    flex: 1 1 100%;
+    padding: 12px 15px;
+    gap: 10px;
+    font-size: 15px;
+  }
+
+  .link-item a {
+    font-size: 14px;
+  }
+
+  button.copy-btn {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 400px) {
+  .card {
+    padding: 15px 15px;
+  }
+
+  .link-item a img {
+    width: 18px;
+  }
+
+  button.copy-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+  }
+
+  .toast {
+    padding: 15px 35px;
+    font-size: 18px;
+  }
+}
+
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>📁 আমার লিঙ্ক টুল</h2>
+
+    <div class="section-title">🌐 Social Links</div>
+    <div class="links-container">
+      <div class="link-item">
+        <a href="https://google.com" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/270/270798.png" alt="Google" width="20">
+          Google
+        </a>
+        <button class="copy-btn" data-link="https://google.com">Copy</button>
+      </div>
+      <div class="link-item">
+        <a href="https://facebook.com" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="20">
+          Facebook M
+        </a>
+        <button class="copy-btn" data-link="https://facebook.com">Copy</button>
+      </div>
+      <div class="link-item">
+        <a href="https://facebook.com" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" width="20">
+          Facebook PC
+        </a>
+        <button class="copy-btn" data-link="https://facebook.com">Copy</button>
+      </div>
+      <div class="link-item">
+        <a href="https://instagram.com" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="20">
+          Instagram M
+        </a>
+        <button class="copy-btn" data-link="https://instagram.com">Copy</button>
+      </div>
+      <div class="link-item">
+        <a href="https://instagram.com" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="20">
+          Instagram PC
+        </a>
+        <button class="copy-btn" data-link="https://instagram.com">Copy</button>
+      </div>
+      <div class="link-item">
+        <a href="https://tiktok.com" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" alt="TikTok" width="20">
+          TikTok
+        </a>
+        <button class="copy-btn" data-link="https://tiktok.com">Copy</button>
+      </div>
+    </div>
+
+    <div class="section-title">📱 Device Info</div>
+    <div class="links-container">
+      <div class="link-item">
+        <a href="https://camera-back.com" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/1484/1484853.png" alt="Back Camera" width="20">
+          Back Camera
+        </a>
+        <button class="copy-btn" data-link="https://camera-back.com">Copy</button>
+      </div>
+      <div class="link-item">
+        <a href="https://camera-front.com" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/1484/1484851.png" alt="Front Camera" width="20">
+          Front Camera
+        </a>
+        <button class="copy-btn" data-link="https://camera-front.com">Copy</button>
+      </div>
+
+      <div class="link-item">
+        <a href="https://camera-front.com" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/1484/1484851.png" alt="Camera" width="20">
+          Camera
+        </a>
+        <button class="copy-btn" data-link="https://camera-front.com">Copy</button>
+      </div>
+      <div class="link-item">
+        <a href="https://microphone.com" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/727/727240.png" alt="Microphone" width="20">
+          Microphone
+        </a>
+        <button class="copy-btn" data-link="https://microphone.com">Copy</button>
+      </div>
+      <div class="link-item">
+        <a href="https://location.com" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" alt="Location" width="20">
+          Location
+        </a>
+        <button class="copy-btn" data-link="https://location.com">Copy</button>
+      </div>
+      <div class="link-item">
+        <a href="https://clipboard.com" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/3415/3415899.png" alt="Clipboard" width="20">
+          Clipboard
+        </a>
+        <button class="copy-btn" data-link="https://clipboard.com">Copy</button>
+      </div>
+    </div>
+
+    <div class="section-title">📤 Share via Apps</div>
+    <div class="links-container">
+      <div class="link-item">
+        <a href="https://wa.me/?text=https://your-link.com" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp" width="20"> WhatsApp
+        </a>
+      </div>
+      <div class="link-item">
+        <a href="fb-messenger://user-thread/" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/2111/2111342.png" alt="Messenger" width="20"> Messenger
+        </a>
+      </div>
+      <div class="link-item">
+        <a href="https://instagram.com/direct/inbox/" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" width="20"> Instagram DM
+        </a>
+      </div>
+      <div class="link-item">
+        <a href="https://www.tiktok.com/messages" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" alt="TikTok" width="20"> TikTok DM
+        </a>
+      </div>
+      <div class="link-item">
+        <a href="im://chat" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/4406/4406234.png" alt="IMO" width="20"> IMO
+        </a>
+      </div>
+      <div class="link-item">
+        <a href="https://t.me/share/url?url=https://your-link.com" target="_blank">
+          <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram" width="20"> Telegram
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="overlay" class="overlay">
+    <div id="toast" class="toast">✅ Link Copied!</div>
+  </div>
+
+  <script>
+  const buttons = document.querySelectorAll('.copy-btn');
+const toast = document.getElementById('toast');
+const overlay = document.getElementById('overlay');
+
+// Copy button event
+buttons.forEach(button => {
+  button.addEventListener('click', () => {
+    const link = button.getAttribute('data-link');
+    const linkName = button.parentElement.querySelector('a').textContent.trim();
+
+    navigator.clipboard.writeText(link).then(() => {
+      toast.textContent = `✅ "${linkName}" লিঙ্ক কপি হয়েছে!`;
+      overlay.classList.add('show');
+      toast.classList.add('show');
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+        overlay.classList.remove('show');
+      }, 2000);
+    }).catch(() => {
+      toast.textContent = `❌ "${linkName}" কপি করতে ব্যর্থ!`;
+      overlay.classList.add('show');
+      toast.classList.add('show');
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+        overlay.classList.remove('show');
+        toast.textContent = "✅ Link Copied!";
+      }, 2000);
+    });
+  });
+});
+
+// Block link clicks for Social Links and Device Info sections only
+// Select all 'a' inside link-item but exclude those inside the "Share via Apps" section
+document.querySelectorAll('.card > .links-container:not(:last-child) .link-item a').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();  // block navigation
+  });
+});
+
+  </script>
+
+</body>
+</html>
