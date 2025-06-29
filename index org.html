@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>🎉 উন্নততর দৈনিক লটারি</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #e0eafc, #cfdef3);
+    margin: 0;
+    padding: 30px 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+  }
+  h1 {
+    color: #d32f2f;
+    text-align: center;
+    font-size: 2.4rem;
+    margin-bottom: 12px;
+    text-shadow: 0 2px 4px rgba(211,47,47,0.7);
+  }
+  p.subtitle {
+    text-align: center;
+    color: #555;
+    margin-bottom: 6px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .info-text {
+    text-align: center;
+    color: #444;
+    font-size: 1rem;
+    margin-top: -8px;
+    font-style: italic;
+  }
+  .highlight-text {
+    text-align: center;
+    color: #d32f2f;
+    font-weight: 900;
+    font-size: 2rem;
+    margin-top: 20px;
+    text-shadow: 0 0 12px rgba(211,47,47,0.7);
+    letter-spacing: 0.08em;
+  }
+  .card {
+    background: linear-gradient(145deg, #f8f9fd, #d1d9e6);
+    border-radius: 20px;
+    padding: 25px 30px;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 600px;
+    box-shadow:
+      8px 8px 15px rgba(163, 177, 198, 0.6),
+      -8px -8px 15px rgba(255, 255, 255, 0.9);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.5s ease, max-height 0.6s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .card:hover {
+    transform: translateY(-10px) scale(1.03);
+    box-shadow:
+      12px 12px 25px rgba(163, 177, 198, 0.8),
+      -12px -12px 25px rgba(255, 255, 255, 1);
+    cursor: default;
+  }
+
+  input[type="tel"], input[type="text"], select {
+    width: 100%;
+    padding: 14px 18px;
+    margin: 12px 0;
+    border: none;
+    border-radius: 15px;
+    font-size: 1.1rem;
+    box-shadow:
+      inset 6px 6px 8px #b8c0d1,
+      inset -6px -6px 8px #ffffff;
+    background: #e0e5ec;
+    transition: box-shadow 0.3s ease;
+  }
+  input[type="tel"]:focus, input[type="text"]:focus, select:focus {
+    outline: none;
+    box-shadow:
+      inset 4px 4px 6px #a1a9bb,
+      inset -4px -4px 6px #ffffff;
+    background: #d9e0f0;
+  }
+
+  button {
+    background: linear-gradient(145deg, #d32f2f, #b62222);
+    color: white;
+    padding: 14px;
+    width: 100%;
+    border: none;
+    border-radius: 20px;
+    font-weight: 900;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    box-shadow:
+      4px 4px 8px rgba(179, 34, 34, 0.6),
+      -4px -4px 8px rgba(255, 77, 77, 0.9);
+    cursor: pointer;
+    transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  }
+  button:hover {
+    background: linear-gradient(145deg, #b62222, #d32f2f);
+    box-shadow:
+      6px 6px 12px rgba(179, 34, 34, 0.8),
+      -6px -6px 12px rgba(255, 77, 77, 1);
+    transform: scale(1.05);
+  }
+
+  /* Share Buttons */
+  .share-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 16px;
+  }
+  .share-btn {
+    width: 62px;
+    height: 62px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, #f0f3ff, #c9d3f8);
+    box-shadow:
+      6px 6px 12px #bec8e7,
+      -6px -6px 12px #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .share-btn img {
+    width: 32px;
+    height: 32px;
+    filter: drop-shadow(0 0 1px rgba(0,0,0,0.1));
+  }
+  .share-btn:hover {
+    transform: scale(1.2);
+    box-shadow:
+      10px 10px 20px #9ca8d4,
+      -10px -10px 20px #ffffff;
+  }
+
+  /* Progress Bar */
+  .progress-container {
+    background: #d7dce6;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-top: 25px;
+    height: 24px;
+    box-shadow:
+      inset 4px 4px 6px #b0b8c7,
+      inset -4px -4px 6px #ffffff;
+  }
+  .progress-bar {
+    background: linear-gradient(90deg, #d32f2f, #ff5353);
+    height: 100%;
+    width: 0%;
+    transition: width 0.4s ease;
+    box-shadow:
+      2px 2px 6px rgba(255, 82, 82, 0.8);
+  }
+
+  #shareCountText {
+    text-align: center;
+    margin-top: 15px;
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: #a62828;
+    text-shadow: 0 1px 3px rgba(211, 47, 47, 0.7);
+  }
+
+  /* Claim form */
+  #claimForm input,
+  #claimForm select {
+    font-size: 1.1rem;
+  }
+
+  /* Toast Notification */
+  #winnerToast {
+    position: fixed;
+    bottom: 25px;
+    left: 25px;
+    background: linear-gradient(145deg, #fdf6f0, #fce4ec);
+    border-radius: 24px;
+    box-shadow:
+      8px 8px 20px rgba(211, 47, 47, 0.35),
+      -8px -8px 20px #fff;
+    padding: 16px 22px;
+    max-width: 360px;
+    display: flex;
+    align-items: center;
+    user-select: none;
+    z-index: 9999;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #d32f2f;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+  }
+  #winnerToast.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Hide with animation */
+  .hide-animate {
+    opacity: 0;
+    max-height: 0;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden;
+    transition: max-height 0.6s ease, opacity 0.6s ease, padding 0.6s ease, margin 0.6s ease;
+  }
+/* New Message Card */
+  #afterClaimCard {
+    display: none;
+    background: #fffbe6;
+    border: 2px dashed #d32f2f;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 30px;
+    border-radius: 20px;
+    color: #c62828;
+    margin-top: 20px;
+    line-height: 1.6;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+  }
+
+  .reset-btn {
+    margin-top: 20px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    background-color: #d32f2f;
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
+  }
+  .reset-btn:hover {
+    background-color: #b71c1c;
+  }
+  /* Responsive */
+  @media (max-width: 600px) {
+    h1 {
+      font-size: 1.8rem;
+    }
+    .card {
+      padding: 18px 20px;
+      max-width: 100%;
+    }
+    .share-btn {
+      width: 50px;
+      height: 50px;
+    }
+    .share-btn img {
+      width: 26px;
+      height: 26px;
+    }
+    #shareCountText {
+      font-size: 1rem;
+    }
+    #winnerToast {
+      font-size: 1rem;
+      max-width: 90vw;
+    }
+  }
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  h1 {
+    font-size: 2rem;
+  }
+  .card {
+    padding: 30px 40px;
+  }
+}
+
+@media (min-width: 1025px) {
+  h1 {
+    font-size: 2.6rem;
+  }
+  .card {
+    padding: 40px 50px;
+    max-width: 700px;
+  }
+  input[type="tel"], input[type="text"], select {
+    font-size: 1.2rem;
+  }
+  button {
+    font-size: 1.2rem;
+  }
+}
+
+</style>
+</head>
+<body>
+
+<!-- Header Section -->
+<div class="card" aria-label="Header Section">
+  <h1>🎁 দৈনিক লটারি 🎉</h1>
+  <p class="subtitle">প্রতি ৬ ঘণ্টায় বিজয়ী বাছাই হয়।</p>
+  <div style="text-align: center; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; line-height: 1.6; max-width: 600px; margin: 20px auto; padding: 10px;">
+    <p style="font-size: 1.25rem; font-weight: 600; color: #d32f2f; margin-bottom: 8px;">
+      আপনার ভাগ্য দিনে চারবার নিজের দরজা খুলে দেয় — সকাল ৬ টা, দুপুর ১২ টা, সন্ধ্যা ৬ টা, আর রাত ১২ টায় লটারি উইথড্রয় হয়।
+    </p>
+    <p style="font-size: 1rem; font-style: italic; color: #555; margin-bottom: 20px;">
+      দিনের প্রতিটি মুহূর্তে জয়ের সুর বাজুক আপনার জন্য!
+    </p>
+    <p style="font-size: 1.3rem; font-weight: 700; color: #d32f2f; margin-bottom: 10px;">
+      ১০ জনকে শেয়ার করুন, আর নিজের জীবনে জিতুন হাসির ফোয়ারা।
+    </p>
+    <p style="font-size: 1.1rem; color: #444; margin-bottom: 0;">
+      এই ছোট্ট শেয়ারই হতে পারে জীবনের বড় সুযোগ! <br />
+      শেয়ার করো, জিতো, হাসো। জীবনের প্রতিটা দিন হোক আনন্দময়।
+    </p>
+  </div>
+</div>
+
+<!-- Number Input Section -->
+<div class="card" id="numberCard" aria-label="মোবাইল নম্বর ইনপুট">
+  <input type="tel" id="entryNumber" placeholder="মোবাইল নম্বর লিখুন" aria-required="true" aria-describedby="numberHelp" />
+  <button onclick="proceedToShare()" aria-label="শুরু করুন">শুরু করুন</button>
+</div>
+
+<!-- Share Buttons -->
+<div class="card" id="shareCard" style="display:none;" aria-label="শেয়ার অপশন">
+  <div class="share-buttons">
+    <div class="share-btn" onclick="shareLottery('whatsapp')" tabindex="0" role="button" aria-pressed="false" aria-label="WhatsApp">
+      <img src="https://cdn-icons-png.flaticon.com/512/733/733585.png" alt="WhatsApp"/>
+    </div>
+    <div class="share-btn" onclick="shareLottery('messenger')" tabindex="0" role="button" aria-pressed="false" aria-label="Messenger">
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Messenger"/>
+    </div>
+    <div class="share-btn" onclick="shareLottery('imo')" tabindex="0" role="button" aria-pressed="false" aria-label="IMO">
+      <img src="https://cdn-icons-png.flaticon.com/512/888/888879.png" alt="IMO"/>
+    </div>
+    <div class="share-btn" onclick="shareLottery('telegram')" tabindex="0" role="button" aria-pressed="false" aria-label="Telegram">
+      <img src="https://cdn-icons-png.flaticon.com/512/2111/2111646.png" alt="Telegram"/>
+    </div>
+  </div>
+  <div class="progress-container" aria-label="শেয়ার প্রগ্রেস">
+    <div class="progress-bar" id="progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"></div>
+  </div>
+  <div id="shareCountText" aria-live="polite" aria-atomic="true">Shared: 0 / 10</div>
+</div>
+
+<!-- Claim Section -->
+<div class="card" id="claimCard" style="display:none;" aria-label="ক্লেইম ফর্ম">
+  <form id="claimForm" aria-label="Claim Form">
+    <input type="text" id="name" placeholder="আপনার নাম" required aria-required="true" />
+    <input type="tel" id="mobile" placeholder="বিকাশ / নগদ নম্বর (১১ সংখ্যার)" pattern="\d{11}" required aria-required="true" />
+    <select id="method" required aria-required="true" aria-label="পেমেন্ট মাধ্যম নির্বাচন করুন">
+      <option disabled selected>পেমেন্ট মাধ্যম নির্বাচন করুন</option>
+      <option>বিকাশ</option>
+      <option>নগদ</option>
+    </select>
+    <button type="submit" aria-label="Claim করুন">Claim করুন</button>
+  </form>
+</div>
+
+<!-- After Claim Message -->
+<div id="afterClaimCard" class="card">
+  🎊 আপনাকে ধন্যবাদ! আপনি লটারি Claim করেছেন।<br />
+  আবার ৬ ঘণ্টা পরে ফিরে আসুন এবং ভাগ্য চেষ্টা করুন।<br />
+  আপনি যাদের শেয়ার করেছেন, তারাও জেতার সুযোগ পাবেন!
+  <br />
+  <button class="reset-btn" onclick="resetPage()">🔁 আবার শুরু করুন</button>
+</div>
+
+
+<!-- Reviews Section -->
+<div id="reviewsContainer" class="card" style="max-width:600px; margin:30px auto; padding:20px; background:#fff; border-radius:16px; box-shadow:0 10px 25px rgba(0,0,0,0.1);" aria-label="গ্রাহকদের রিভিউ">
+  <h2 style="text-align:center; color:#d32f2f; margin-bottom:20px;">গ্রাহকদের রিভিউ</h2>
+</div>
+
+<!-- Toast Notification -->
+<div id="winnerToast" aria-live="assertive" aria-atomic="true" role="alert" style="display:flex; align-items:center;">
+  <div id="winnerText"></div>
+</div>
+
+
+
+
+<script>
+  let shareCount = 0;
+  const target = 10;
+
+  function updateProgress() {
+    const percent = Math.min(100, (shareCount / target) * 100);
+    const progressBar = document.getElementById('progressBar');
+    progressBar.style.width = percent + '%';
+    progressBar.setAttribute('aria-valuenow', shareCount);
+    document.getElementById('shareCountText').innerText = `Shared: ${shareCount} / ${target}`;
+
+    if (shareCount >= target) {
+      // Show claim form after hiding share card with animation
+      hideShareCardThenShowClaim();
+    }
+  }
+
+  function shareLottery(platform) {
+    shareCount++;
+    updateProgress();
+
+    const url = encodeURIComponent(window.location.href);
+    const text = encodeURIComponent('আজকের লটারি! এখানে ক্লিক করুন: ');
+    let link = '';
+
+    switch(platform) {
+      case 'whatsapp':
+        link = `https://wa.me/?text=${text}${url}`; break;
+      case 'messenger':
+        link = `fb-messenger://share?link=${url}`; break;
+      case 'imo':
+        link = `https://imo.im/go/?link=${url}`; break;
+      case 'telegram':
+        link = `https://t.me/share/url?url=${url}&text=${text}`; break;
+      default:
+        link = `https://wa.me/?text=${text}${url}`;
+    }
+
+    window.open(link, '_blank');
+  }
+
+  function proceedToShare() {
+    const number = document.getElementById('entryNumber').value.trim();
+    if (!/^\d{11}$/.test(number)) {
+      alert('অনুগ্রহ করে ১১ সংখ্যার সঠিক মোবাইল নম্বর দিন।');
+      return;
+    }
+    document.getElementById('numberCard').style.display = 'none';
+    document.getElementById('shareCard').style.display = 'block';
+  }
+
+  function hideShareCardThenShowClaim() {
+    const shareCard = document.getElementById('shareCard');
+    shareCard.classList.add('hide-animate');
+    setTimeout(() => {
+      shareCard.style.display = 'none';
+      document.getElementById('claimCard').style.display = 'block';
+      document.getElementById('claimForm').style.display = 'block';
+    }, 600);
+  }
+
+ document.getElementById('claimForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const mobile = document.getElementById('mobile').value.trim();
+    const method = document.getElementById('method').value;
+
+    if (!name || !/^\d{11}$/.test(mobile) || !method) {
+      alert('সব তথ্য সঠিকভাবে পূরণ করুন।');
+      return;
+    }
+
+
+    showToast(`Claim তথ্য পেয়েছি, ${name}।\nআপনার লটারি হবে। বিজয়ীদের নাম ৬ ঘণ্টা পর জানানো হবে।`);
+
+    this.reset();
+    this.style.display = 'none';
+    document.getElementById('afterClaimCard').style.display = 'block';
+  });
+
+  function resetPage() {
+    shareCount = 0;
+    document.getElementById('progressBar').style.width = '0%';
+    document.getElementById('shareCountText').innerText = `Shared: 0 / ${target}`;
+    document.getElementById('numberCard').style.display = 'block';
+    document.getElementById('shareCard').style.display = 'none';
+    document.getElementById('claimCard').style.display = 'none';
+    document.getElementById('afterClaimCard').style.display = 'none';
+    document.getElementById('entryNumber').value = '';
+  }
+  function showToast(message) {
+    const toast = document.getElementById('winnerToast');
+    const text = document.getElementById('winnerText');
+
+    text.innerText = message;
+    toast.classList.add('show');
+
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 5000);
+  }
+
+  // রিভিউ লজিক
+  const reviews = [
+    {name: "সাবিনা রহমান", text: "আমি মাত্র ১০ জনকে শেয়ার করলাম আর আজ আমি বিজয়ী! ধন্যবাদ এই লটারি পেজের জন্য।"},
+    {name: "রাকিব হাসান", text: "লটারি সিস্টেমটা খুব সহজ এবং মজার। মাত্র কয়েক ঘণ্টার মধ্যেই পেমেন্ট পেয়েছি!"},
+    {name: "মীম নাসরিন", text: "১০ জনকে শেয়ার করার পরই আমার নাম আসলো বিজয়ীর তালিকায়। সত্যিই অসাধারণ!"},
+    {name: "রিয়াজুল ইসলাম", text: "আমি বিশ্বাস করিনি, কিন্তু সত্যিই কাজ করেছে! সবাইকে আমি সাজেস্ট করবো।"}
+  ];
+
+  const reviewContainer = document.getElementById('reviewsContainer');
+  let reviewIndex = 0;
+
+  function showNextReview() {
+    if(reviewIndex >= reviews.length) return;
+    const review = document.createElement('div');
+    review.className = 'review';
+    review.style.marginBottom = '15px';
+    review.style.paddingBottom = '15px';
+    review.style.borderBottom = '1px solid #eee';
+
+    const name = document.createElement('p');
+    name.style.fontWeight = '600';
+    name.style.color = '#222';
+    name.textContent = reviews[reviewIndex].name;
+
+    const text = document.createElement('p');
+    text.style.fontStyle = 'italic';
+    text.style.color = '#555';
+    text.textContent = `“${reviews[reviewIndex].text}”`;
+
+    review.appendChild(name);
+    review.appendChild(text);
+    reviewContainer.appendChild(review);
+
+    reviewIndex++;
+  }
+
+  // রিভিউ শুরু করো পেজ লোড এ
+  window.addEventListener('load', () => {
+    const reviewInterval = setInterval(() => {
+      if(reviewIndex < reviews.length) {
+        showNextReview();
+      } else {
+        clearInterval(reviewInterval);
+      }
+    }, 3000);
+  });
+
+
+  // লাইভ জয়ীদের টোস্ট লজিক
+  const winners = [
+    { name: "সাবিনা রহমান", date: "২০২৫-০৬-২৭" },
+    { name: "রাকিব হাসান", date: "২০২৫-০৬-২৭" },
+    { name: "মীম নাসরিন", date: "২০২৫-০৬-২৬" },
+    { name: "রিয়াজুল ইসলাম", date: "২০২৫-০৬-২৫" },
+    { name: "নাজমুল হাসান", date: "২০২৫-০৬-২৪" },
+    { name: "ফাতেমা ইসলাম", date: "২০২৫-০৬-২৩" }
+  ];
+
+  const winnerToastElem = document.getElementById('winnerToast');
+  const winnerTextElem = document.getElementById('winnerText');
+
+  function showWinnerToast(winner) {
+    winnerTextElem.innerText = `🎉 ${winner.name} পুরস্কার পেয়েছেন! (তারিখ: ${winner.date})`;
+    winnerToastElem.classList.add('show');
+
+    setTimeout(() => {
+      winnerToastElem.classList.remove('show');
+    }, 4000);
+  }
+
+  function randomWinnerToastLoop() {
+    setInterval(() => {
+      const randomIndex = Math.floor(Math.random() * winners.length);
+      const winner = winners[randomIndex];
+      showWinnerToast(winner);
+    }, 12000);
+  }
+
+  window.addEventListener('load', () => {
+    randomWinnerToastLoop();
+  });
+</script>
+
+</body>
+</html>
