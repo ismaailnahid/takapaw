@@ -1,0 +1,23 @@
+{
+  "name": "Takapaw Lottery",
+  "short_name": "Takapaw",
+  "description": "🎉 আজকের লটারি বিজয়ী হতে পারেন আপনিও! এখনই শেয়ার করুন ও পুরস্কার জিতুন!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fffbe6",
+  "theme_color": "#FFD700",
+  "orientation": "portrait",
+  "lang": "bn-BD",
+  "icons": [
+    {
+      "src": "/icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
