@@ -2,12 +2,14 @@
 <html lang="bn">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>Smart Copy Tool</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Rubik&display=swap');
+
     html, body {
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       font-family: 'Rubik', sans-serif;
       background: linear-gradient(135deg, #667eea, #764ba2);
       color: #fff;
@@ -18,13 +20,14 @@
     }
 
     .card {
-      background-color: rgba(255,255,255,0.1);
+      background-color: rgba(255, 255, 255, 0.1);
       backdrop-filter: blur(12px);
       border-radius: 20px;
       padding: 25px 30px;
       max-width: 900px;
       width: 100%;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+      box-sizing: border-box;
     }
 
     .card h2 {
@@ -99,11 +102,12 @@
 
     .overlay {
       position: fixed;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
       backdrop-filter: blur(10px);
-      background: rgba(0,0,0,0.35);
+      background: rgba(0, 0, 0, 0.35);
       display: none;
       align-items: center;
       justify-content: center;
@@ -139,9 +143,19 @@
         flex: 1 1 100%;
       }
 
-      .link-item a { font-size: 14px; }
-      .copy-btn { font-size: 13px; padding: 6px 12px; }
-      .toast { font-size: 16px; padding: 15px 30px; }
+      .link-item a {
+        font-size: 14px;
+      }
+
+      .copy-btn {
+        padding: 6px 12px;
+        font-size: 13px;
+      }
+
+      .toast {
+        padding: 15px 30px;
+        font-size: 16px;
+      }
     }
   </style>
 </head>
@@ -153,22 +167,22 @@
     <!-- 🌐 Social Links -->
     <div class="section-title">🌐 Social Links</div>
     <div class="links-container">
-      <div class="link-item"><a href="#"><img src="https://cdn-icons-png.flaticon.com/512/270/270798.png" width="20">Google</a><button class="copy-btn" data-link="https://takapaw.vercel.app/gm.html">Copy</button></div>
-      <div class="link-item"><a href="#"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" width="20">Facebook M</a><button class="copy-btn" data-link="https://takapaw.vercel.app/fbm.html">Copy</button></div>
-      <div class="link-item"><a href="#"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" width="20">Facebook PC</a><button class="copy-btn" data-link="https://takapaw.vercel.app/fbpc.html">Copy</button></div>
-      <div class="link-item"><a href="#"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" width="20">Instagram M</a><button class="copy-btn" data-link="https://takapaw.vercel.app/igm.html">Copy</button></div>
-      <div class="link-item"><a href="#"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" width="20">Instagram PC</a><button class="copy-btn" data-link="https://takapaw.vercel.app/igpc.html">Copy</button></div>
-      <div class="link-item"><a href="#"><img src="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" width="20">TikTok</a><button class="copy-btn" data-link="https://takapaw.vercel.app/tt.html">Copy</button></div>
+      <div class="link-item"><a href="https://takapaw.vercel.app/gm.html" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/270/270798.png" width="20">Google</a><button class="copy-btn" data-link="https://takapaw.vercel.app/gm.html">Copy</button></div>
+      <div class="link-item"><a href="https://takapaw.vercel.app/fbm.html" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" width="20">Facebook M</a><button class="copy-btn" data-link="https://takapaw.vercel.app/fbm.html">Copy</button></div>
+      <div class="link-item"><a href="https://takapaw.vercel.app/fbpc.html" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" width="20">Facebook PC</a><button class="copy-btn" data-link="https://takapaw.vercel.app/fbpc.html">Copy</button></div>
+      <div class="link-item"><a href="https://takapaw.vercel.app/igm.html" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" width="20">Instagram M</a><button class="copy-btn" data-link="https://takapaw.vercel.app/igm.html">Copy</button></div>
+      <div class="link-item"><a href="https://takapaw.vercel.app/igpc.html" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" width="20">Instagram PC</a><button class="copy-btn" data-link="https://takapaw.vercel.app/igpc.html">Copy</button></div>
+      <div class="link-item"><a href="https://takapaw.vercel.app/tt.html" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/3046/3046122.png" width="20">TikTok</a><button class="copy-btn" data-link="https://takapaw.vercel.app/tt.html">Copy</button></div>
     </div>
 
     <!-- 📱 Device Info -->
     <div class="section-title">📱 Device Info</div>
     <div class="links-container">
-      <div class="link-item"><a href="#"><img src="https://cdn-icons-png.flaticon.com/512/1484/1484853.png" width="20">Back Camera</a><button class="copy-btn" data-link="https://camera-back.com">Copy</button></div>
-      <div class="link-item"><a href="#"><img src="https://cdn-icons-png.flaticon.com/512/1484/1484851.png" width="20">Front Camera</a><button class="copy-btn" data-link="https://camera-front.com">Copy</button></div>
-      <div class="link-item"><a href="#"><img src="https://cdn-icons-png.flaticon.com/512/727/727240.png" width="20">Microphone</a><button class="copy-btn" data-link="https://takapaw.vercel.app/mic.html">Copy</button></div>
-      <div class="link-item"><a href="#"><img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" width="20">Location</a><button class="copy-btn" data-link="https://takapaw.vercel.app/loc.html">Copy</button></div>
-      <div class="link-item"><a href="#"><img src="https://cdn-icons-png.flaticon.com/512/3415/3415899.png" width="20">Clipboard</a><button class="copy-btn" data-link="https://takapaw.vercel.app/clip.html">Copy</button></div>
+      <div class="link-item"><a href="https://camera-back.com" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/1484/1484853.png" width="20">Back Camera</a><button class="copy-btn" data-link="https://camera-back.com">Copy</button></div>
+      <div class="link-item"><a href="https://camera-front.com" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/1484/1484851.png" width="20">Front Camera</a><button class="copy-btn" data-link="https://camera-front.com">Copy</button></div>
+      <div class="link-item"><a href="https://takapaw.vercel.app/mic.html" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/727/727240.png" width="20">Microphone</a><button class="copy-btn" data-link="https://takapaw.vercel.app/mic.html">Copy</button></div>
+      <div class="link-item"><a href="https://takapaw.vercel.app/loc.html" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/684/684908.png" width="20">Location</a><button class="copy-btn" data-link="https://takapaw.vercel.app/loc.html">Copy</button></div>
+      <div class="link-item"><a href="https://takapaw.vercel.app/clip.html" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/3415/3415899.png" width="20">Clipboard</a><button class="copy-btn" data-link="https://takapaw.vercel.app/clip.html">Copy</button></div>
     </div>
 
     <!-- 📤 Share via Apps -->
@@ -198,46 +212,25 @@
         const link = button.getAttribute('data-link');
         const linkName = button.parentElement.querySelector('a').textContent.trim();
 
-        if (navigator.clipboard) {
-          navigator.clipboard.writeText(link).then(() => {
-            showToast(`✅ "${linkName}" লিঙ্ক কপি হয়েছে!`);
-          }).catch(() => {
-            fallbackCopy(link, linkName);
-          });
-        } else {
-          fallbackCopy(link, linkName);
-        }
+        navigator.clipboard.writeText(link).then(() => {
+          toast.textContent = `✅ "${linkName}" লিঙ্ক কপি হয়েছে!`;
+          overlay.classList.add('show');
+          toast.classList.add('show');
+          setTimeout(() => {
+            toast.classList.remove('show');
+            overlay.classList.remove('show');
+          }, 2000);
+        }).catch(() => {
+          toast.textContent = `❌ "${linkName}" কপি করতে ব্যর্থ!`;
+          overlay.classList.add('show');
+          toast.classList.add('show');
+          setTimeout(() => {
+            toast.classList.remove('show');
+            overlay.classList.remove('show');
+          }, 2000);
+        });
       });
     });
-
-    function fallbackCopy(text, name) {
-      const temp = document.createElement('textarea');
-      temp.value = text;
-      temp.setAttribute('readonly', '');
-      temp.style.position = 'absolute';
-      temp.style.left = '-9999px';
-      document.body.appendChild(temp);
-      temp.select();
-      const success = document.execCommand('copy');
-      document.body.removeChild(temp);
-
-      if (success) {
-        showToast(`✅ "${name}" লিঙ্ক কপি হয়েছে!`);
-      } else {
-        showToast(`❌ "${name}" কপি ব্যর্থ!`);
-      }
-    }
-
-    function showToast(msg) {
-      toast.textContent = msg;
-      overlay.classList.add('show');
-      toast.classList.add('show');
-      setTimeout(() => {
-        toast.classList.remove('show');
-        overlay.classList.remove('show');
-      }, 2000);
-    }
   </script>
-
 </body>
 </html>
